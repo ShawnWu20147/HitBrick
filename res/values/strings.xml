@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">变态打砖块</string>
+    <string name="action_settings">Settings</string>
+
+    
+    <string name="title">变态打砖块</string>
+    <string name="startG">开始游戏</string>
+    <string name="endG">结束游戏</string>
+</resources>
