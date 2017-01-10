@@ -18,7 +18,7 @@ import com.nju.hb.GameView;
 
 public class GameEngine {
 	
-	public static final int BALL_SPEED_RATE = 3000;
+	public static final int BALL_SPEED_RATE = GameActivity.FPS * 5;	
 	
 	GameView gv;
 	BottomPanel bp;
@@ -83,6 +83,30 @@ public class GameEngine {
 		Brick br55 = new Brick(560, 400);
 		br55.randomLevel();
 		set_brick.add(br55);
+		
+		Brick br333 = new Brick(40, 560);
+		br333.randomLevel();
+		set_brick.add(br333);
+		
+		Brick br444 = new Brick(300, 560);
+		br444.randomLevel();
+		set_brick.add(br444);
+		
+		Brick br555 = new Brick(560, 560);
+		br555.randomLevel();
+		set_brick.add(br555);
+		
+		Brick br3333 = new Brick(40, 720);
+		br3333.randomLevel();
+		set_brick.add(br3333);
+		
+		Brick br4444 = new Brick(300, 720);
+		br4444.randomLevel();
+		set_brick.add(br4444);
+		
+		Brick br5555 = new Brick(560, 720);
+		br5555.randomLevel();
+		set_brick.add(br5555);
 	}
 	
 	
@@ -222,10 +246,16 @@ public class GameEngine {
 	private void change_direct_for_ball() {
 		for (Ball b : set_ball){
 			if (b.isStopped) continue;
-			if (b.y > bp.BOTTOM - BottomPanel.FIXED_HEIGHT - Ball.BALL_SIZE){
+			if (b.y + Ball.BALL_SIZE> bp.BOTTOM - BottomPanel.FIXED_HEIGHT){
 
+				if (b.x + Ball.BALL_SIZE < bp.x - bp.length / 2 || b.x - Ball.BALL_SIZE > bp.x + bp.length / 2) continue;
+				
+				
 				// 显然 代表一次碰撞 因为死亡的情况已经检测过了
 				double ndx = Math.random();
+				
+				while (ndx > 0.8) ndx = Math.random();
+				
 				double ndy = Math.sqrt(1.0 - ndx * ndx);
 
 				// Log.i("hehe","之前:" +b.dx +" "+b.dy);
@@ -238,7 +268,7 @@ public class GameEngine {
 					b.dx = -ndx;
 					b.dy = -ndy;
 				}
-				// if (b.y >= bp.BOTTOM) b.y = bp.BOTTOM - BottomPanel.FIXED_HEIGHT - 1;
+				if (b.y > bp.BOTTOM - BottomPanel.FIXED_HEIGHT - Ball.BALL_SIZE) b.y = bp.BOTTOM - BottomPanel.FIXED_HEIGHT - Ball.BALL_SIZE;
 				// Log.i("hehe","之后:" +b.dx +" "+b.dy);
 				
 			}
@@ -253,9 +283,9 @@ public class GameEngine {
 		
 		for (Ball b : bl){
 			if (b.isStopped) continue;
-			if (b.y > bp.BOTTOM){
+			if (b.y - Ball.BALL_SIZE >= bp.BOTTOM){
 				// 检测是否撞了挡板
-				// Log.i("hehe", b.x + " "+bp.x+" "+bp.length);
+				// Log.i("hehe", b.x + " "+b.y +" "+ " "+bp.x+" "+bp.length);
 				if (b.x + Ball.BALL_SIZE >= bp.x - bp.length / 2 && b.x - Ball.BALL_SIZE <= bp.x + bp.length / 2) continue;
 				// Log.i("hehe","这个挂了");
 				set_ball.remove(b);
@@ -290,11 +320,14 @@ public class GameEngine {
 			int x = b.x;
 			int y = b.y;
 			
-			if (x <= 0 || x >= bp.RIGHT){
+			if (x - Ball.BALL_SIZE < 0 || x + Ball.BALL_SIZE > bp.RIGHT){
 				b.dx *= -1;
+				if (x - Ball.BALL_SIZE < 0) b.x = Ball.BALL_SIZE;
+				if (x + Ball.BALL_SIZE > bp.RIGHT) b.x = bp.RIGHT - Ball.BALL_SIZE;
 			}
-			if (y <= 0){
+			if (y - Ball.BALL_SIZE < 0){
 				b.dy *= -1;
+				b.y = Ball.BALL_SIZE;
 			}
 			
 			

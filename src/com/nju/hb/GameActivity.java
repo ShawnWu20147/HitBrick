@@ -26,6 +26,9 @@ import android.view.Window;
 import android.widget.Toast;
 
 public class GameActivity extends Activity {
+	
+	public static final int FPS = 100;
+	
 	GameView gv;
 	Bitmap bm;
 	
@@ -40,6 +43,9 @@ public class GameActivity extends Activity {
 	GestureDetector gd;
 	
 	public static Handler myhandler;
+	
+	
+
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +70,7 @@ public class GameActivity extends Activity {
 			public void run() {
 				while (true){
 					try {
-						Thread.currentThread().sleep(10);
+						Thread.currentThread().sleep(1000 / FPS);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

@@ -8,6 +8,9 @@ public class Ball {
 	public static final int BALL_SIZE = 30;
 	public static final double INITIAL_SPEED = 30;
 	
+	public static final double SPEED_DENOMINATOR = 5.0;
+	
+	
 	double dx, dy;
 	int x, y;
 	int diff;
@@ -59,7 +62,7 @@ public class Ball {
 
 	public void increateSpeed() {
 		ball_speed_level += 1.0;
-		speed = INITIAL_SPEED * (1.0 + ball_speed_level / 10.0);
+		speed = INITIAL_SPEED * (1.0 + ball_speed_level / SPEED_DENOMINATOR);
 		
 	}
 }
