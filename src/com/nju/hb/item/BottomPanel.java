@@ -11,7 +11,7 @@ public class BottomPanel {
 	public static int BOTTOM = 1720;
 	public static int RIGHT = 1080;
 	
-	public int x, y;
+	public int x, y;	// x是中间位置
 	
 	int length;
 	

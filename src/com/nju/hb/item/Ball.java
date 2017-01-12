@@ -6,10 +6,11 @@ public class Ball {
 	public static final long TIME_POWER = 10000;
 	public static final long TIME_THOROUGH = 10000;
 	public static final int BALL_SIZE = 30;
-	public static final double INITIAL_SPEED = 30;
+	public static final double INITIAL_SPEED = 10;
 	
 	public static final double SPEED_DENOMINATOR = 5.0;
 	
+	public int thoroughingID = -1;
 	
 	double dx, dy;
 	int x, y;
@@ -22,7 +23,7 @@ public class Ball {
 	boolean isStopped;
 	
 	boolean isPower, isThorough;
-	long power_start, thorough_start;
+	long power_left, thorough_left;
 	long speed_start;
 	
 	int cl;

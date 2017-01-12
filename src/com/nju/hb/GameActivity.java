@@ -6,6 +6,7 @@ import java.util.TimerTask;
 
 import com.nju.hb.item.BottomPanel;
 import com.nju.hb.item.GameEngine;
+import com.nju.hb.item.Item;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -63,6 +64,7 @@ public class GameActivity extends Activity {
 		
 		bm = gv.getMyBackground();
 		
+		Item.generateItems(this);
 
 		t = new Thread(new Runnable() {
 			
@@ -175,6 +177,7 @@ public class GameActivity extends Activity {
 				
             }
 		})  
+		.setCancelable(false)
 		.setNegativeButton("ÍË³ö±¾¾Ö", new DialogInterface.OnClickListener(){ 
             @Override 
             public void onClick(DialogInterface dialog, int which) {

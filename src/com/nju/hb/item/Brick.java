@@ -12,12 +12,17 @@ public class Brick {
 	
 	int level;
 	
+	int id;
+	
+	private static int ID_COUNTER = 0;
+	
 	public Brick(int left, int top){
 		this.left = left;
 		this.top = top;
 		this.right = left + WIDTH;
 		this.bottom = top + HEIGHT;
 		
+		this.id = ID_COUNTER++;
 	}
 
 	

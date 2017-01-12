@@ -20,6 +20,12 @@ public class GameEngine {
 	
 	public static final int BALL_SPEED_RATE = GameActivity.FPS * 5;	
 	
+	public static final long THOROUGH_TIME = GameActivity.FPS * 6;
+	public static final long POWER_TIME = GameActivity.FPS * 3;
+	
+	public static double CHANCE_ITEM = 7.0;
+	
+	
 	GameView gv;
 	BottomPanel bp;
 	Canvas canvas;
@@ -28,6 +34,8 @@ public class GameEngine {
 	
 	HashSet<Ball> set_ball;
 	HashSet<Brick> set_brick;
+	
+	HashSet<Item> set_item;
 	
 	boolean isOver;
 	
@@ -39,7 +47,19 @@ public class GameEngine {
 		Ball b = new Ball(bp.getXforBall(), bp.getYforBall());
 		set_ball.add(b);
 		
+		set_item = new HashSet<Item>();
+		
 		generate_bricks_0();
+		
+		
+		Item i1 = new Item(0);
+		set_item.add(i1);
+		
+		Item i2 = new Item(1);
+		i2.y = 60;
+		i2.x = 800;
+		set_item.add(i2);
+		
 		
 		isOver = false;
 		
@@ -138,25 +158,124 @@ public class GameEngine {
 		
 		collision_wall();
 		
-		collision_brick();
+		collision_brick();	//这里判断物品
 		
 		
 		ballMove();
 		
-		drawPanel();
+		
 		
 		drawBrick();
 		
+		moveItem();
+		
+		drawItem();
+		
 		drawBall();
+		
+		drawPanel();
 		
 		
 	}
 	
+	private void moveItem() {
+		List<Item> li = new ArrayList<Item>();
+		li.addAll(set_item);
+		
+		for (Item i : li){
+			i.y += Item.DOWN_SPEED;
+			
+			if (i.y + Item.HEIGHT >= BottomPanel.BOTTOM - BottomPanel.FIXED_HEIGHT){
+				if (i.x <= bp.x + bp.length / 2 && i.x + Item.WIDTH >= bp.x - bp.length / 2){
+					//碰到了
+					
+					switch(i.type){
+					case 0:
+						// 透明球
+						for (Ball b : set_ball){
+							b.isPower = false;
+							b.isThorough = true;
+							b.thorough_left = THOROUGH_TIME;
+						}
+						break;
+					case 1:
+						// 威力球
+						for (Ball b : set_ball){
+							b.isThorough = false;
+							b.isPower = true;
+							b.power_left = POWER_TIME;
+						}
+						break;
+					}
+					
+					
+					set_item.remove(i);
+				}
+			}
+			
+			if (i.y > bp.BOTTOM && set_item.contains(i)) set_item.remove(i);
+		}
+
+	}
+
+
+	private void drawItem() {
+		for (Item i : set_item){
+			switch(i.type){
+			case 0:
+				canvas.drawBitmap(Item.bm[0], i.x, i.y, null);
+				break;
+			case 1:
+				canvas.drawBitmap(Item.bm[1], i.x, i.y, null);
+				break;
+			}
+		}
+		
+	}
+
+
 	private void collision_brick() {
 		for (Ball b : set_ball){
 			List<Brick> brl = new ArrayList<Brick>();
 			brl.addAll(set_brick);
+			
+			if (b.isThorough && b.thoroughingID != -1){
+				Brick what = null;
+				for (Brick bb : brl){
+					if (bb.id == b.thoroughingID){
+						what = bb;
+						break;
+					}
+				}
+				if (what == null){
+					b.thoroughingID = -1;
+				}
+				else{
+					// 判断是否还在穿越
+					int ball_top = b.y - Ball.BALL_SIZE;
+					int ball_bottom = b.y + Ball.BALL_SIZE;
+					int ball_left = b.x - Ball.BALL_SIZE;
+					int ball_right = b.x + Ball.BALL_SIZE;
+					
+					int i1 = what.left;
+					int i2 = what.top;
+					int i3 = what.right;
+					int i4 = what.bottom;
+					
+					if (ball_top <= i4 && ball_bottom >= i2 && ball_left <= i3 && ball_right >= i1){
+						continue;
+					}
+					else b.thoroughingID = -1;
+						
+					
+					
+					
+					
+				}
+			}
+			
 			for (Brick br : brl){
+
 				// 判断 b 和 br 是否相撞
 				int i1 = br.left;
 				int i2 = br.top;
@@ -168,64 +287,80 @@ public class GameEngine {
 				int ball_left = b.x - Ball.BALL_SIZE;
 				int ball_right = b.x + Ball.BALL_SIZE;
 				
-				if (ball_top >= i4 || ball_bottom <= i2 || ball_left >= i3 || ball_right <= i1) continue;
+				if (ball_top > i4 || ball_bottom < i2 || ball_left > i3 || ball_right < i1){
+					// 没有碰撞
+					continue;
+				}
+
+				if (!b.isThorough){
 				
-				// 已经确定碰撞
-				// 先改方向
-				if (b.dx > 0 && b.dy < 0){
-					// 左边 或者 下边
-					double thx = i4 - b.y;
-					if (thx > Ball.BALL_SIZE / 2){
-						//左边
-						b.dx *= -1;
+				
+					// 已经确定碰撞
+					// 先改方向
+					if (b.dx > 0 && b.dy < 0){
+						// 左边 或者 下边
+						double thx = i4 - b.y;
+						if (thx > Ball.BALL_SIZE / 2){
+							//左边
+							b.dx *= -1;
+						}
+						else{
+							//下边
+							b.dy *= -1;
+						}
+						
+						
+						
 					}
-					else{
-						//下边
-						b.dy *= -1;
+					else if (b.dx > 0 && b.dy > 0){
+						// 左边 或者 上边
+						double thx = b.y - i2;
+						if (thx > Ball.BALL_SIZE / 2){
+							//左边
+							b.dx *= -1;
+						}
+						else{
+							//上边
+							b.dy *= -1;
+						}
+						
 					}
-					
-					
-					
+					else if (b.dx < 0 && b.dy < 0){
+						// 右边 或者 下边
+						double thx = i4 - b.y;
+						if (thx > Ball.BALL_SIZE / 2){
+							//右边
+							b.dx *= -1;
+						}
+						else{
+							//下边
+							b.dy *= -1;
+						}
+					}
+					else if (b.dx < 0 && b.dy > 0){
+						// 右边 或者 上边
+						double thx = b.y - i2;
+						if (thx > Ball.BALL_SIZE / 2){
+							//右边
+							b.dx *= -1;
+						}
+						else{
+							//上边
+							b.dy *= -1;
+						}
+					}
 				}
-				else if (b.dx > 0 && b.dy > 0){
-					// 左边 或者 上边
-					double thx = b.y - i2;
-					if (thx > Ball.BALL_SIZE / 2){
-						//左边
-						b.dx *= -1;
-					}
-					else{
-						//上边
-						b.dy *= -1;
-					}
-					
-				}
-				else if (b.dx < 0 && b.dy < 0){
-					// 右边 或者 下边
-					double thx = i4 - b.y;
-					if (thx > Ball.BALL_SIZE / 2){
-						//右边
-						b.dx *= -1;
-					}
-					else{
-						//下边
-						b.dy *= -1;
-					}
-				}
-				else if (b.dx < 0 && b.dy > 0){
-					// 右边 或者 上边
-					double thx = b.y - i2;
-					if (thx > Ball.BALL_SIZE / 2){
-						//右边
-						b.dx *= -1;
-					}
-					else{
-						//上边
-						b.dy *= -1;
-					}
+				else{
+					if (b.thoroughingID != -1) continue;	// 直接考虑下个砖块
+					b.thoroughingID = br.id;
 				}
 				
-				br.setLevel(br.level - 1);
+				tryGenerateAnItem(br);
+				
+				
+				if (!b.isPower) br.setLevel(br.level - 1);
+				else br.setLevel(-1);
+				
 				if (br.level == -1){
 					set_brick.remove(br);
 					if (set_brick.size() == 0){
@@ -239,6 +374,20 @@ public class GameEngine {
 				
 			}
 		}
+		
+	}
+
+
+	private void tryGenerateAnItem(Brick br) {
+		double i1 = Math.random() * 100;
+		if (i1 > CHANCE_ITEM) return;
+		
+		
+		Item i = Item.generateAnItem();
+		i.x = (br.left + br.right) / 2 - Item.WIDTH / 2;
+		i.y = br.bottom;
+		
+		set_item.add(i);
 		
 	}
 
@@ -302,8 +451,18 @@ public class GameEngine {
 	}
 	
 	private void ball_state_modify() {
-		// TODO 球状态如果是威力或者穿透 不是这样
+		
 		for (Ball b: set_ball){
+			
+			if (!b.isStopped && b.isThorough && --b.thorough_left <= 0){
+				b.isThorough = false;
+				b.thoroughingID = -1;
+			}
+			
+			if (!b.isStopped && b.isPower && --b.power_left <= 0){
+				b.isPower = false;
+			}
+			
 			b.speed_start--;
 			if (b.speed_start == 0){
 				b.increateSpeed();
